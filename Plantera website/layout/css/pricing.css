@@ -10,6 +10,7 @@
 }
 .pricingContainer{
     padding:35px;
+    font-weight: 700;
 }
 .pricingBtn, .pricingBtn:hover, .pricingBtn:active, .pricingBtn:visited, .pricingBtn:focus{
     position: absolute;

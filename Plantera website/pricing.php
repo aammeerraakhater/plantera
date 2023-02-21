@@ -14,11 +14,11 @@
             <h5 class="card-title">Kit price + 10$/year for the farm</h5>
             <p class="card-text">
                 <i class="fa-solid fa-check"></i>
-                Monitor one farm<br>
+                Monitor and automate one farm<br>
                 <i class="fa-solid fa-check"></i>
-                Plant disease <br>
+                Plant disease detection<br>
                 <i class="fa-solid fa-check"></i>
-                crop monitoring <br></p>
+                crop yield predection <br></p>
             <a href="#" class="btn btn-primary pricingBtn">Get started</a>
         </div>
         </div>
@@ -30,11 +30,11 @@
             <h5 class="card-title">Kit price + 9$/year for each added farm</h5>
             <p class="card-text">
                 <i class="fa-solid fa-check"></i>
-                Monitor more than one farm<br>
+                Monitor and automate more than one farm<br>
                 <i class="fa-solid fa-check"></i>
-                Plant disease <br>
+                Plant disease detection<br>
                 <i class="fa-solid fa-check"></i>
-                crop monitoring <br>
+                crop yield predection<br>
             </p>
             <a href="#" class="btn btn-primary pricingBtn">Get started</a>
         </div>
