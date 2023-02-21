@@ -1,3 +1,4 @@
+
 :root{
     --highLand :#6c935a;
     --palm :#3e654a;
@@ -17,11 +18,14 @@ body{
     color:var(--bentley);
     background-color: var(--clay);
 }
-a{
-    color:var(--bentley);
+a, .a:visited, .a:focus{
+    color:var(--bentley) !important;
+}
+a:hover, .a:active{
+    color:var(--truffle) !important;
 }
 a.navbarTitle{
-    color:var(--highLand);
+    color:var(--highLand) !important;
     font-size: 2rem;
     font-weight: 600;
     font-family: 'Dancing Script', cursive;
