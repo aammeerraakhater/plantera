@@ -11,7 +11,7 @@
         <div class="card mb-3">
         <div class="card-body">
         <h5 class="card-title">One farm</h5>
-            <h5 class="card-title">Kit price + 10$/year for the farm</h5>
+            <h5 class="card-title">250$ for the first farm</h5>
             <p class="card-text">
                 <i class="fa-solid fa-check"></i>
                 Monitor and automate one farm<br>
@@ -27,7 +27,7 @@
         <div class="card mb-3">
         <div class="card-body">
             <h5 class="card-title">Add-ons</h5>
-            <h5 class="card-title">Kit price + 9$/year for each added farm</h5>
+            <h5 class="card-title">200$ for each added farm</h5>
             <p class="card-text">
                 <i class="fa-solid fa-check"></i>
                 Monitor and automate more than one farm<br>

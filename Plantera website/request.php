@@ -8,8 +8,8 @@
     <h1>Request our products</h1>
 
     For more detailed information, we encourage you to engage with us directly. Our experts will get back to you within one workday.
-    If you have already started or are about to start the fleet management business and are interested in Plantera, please contact us by filling out the form below and get price details.
-    If you want to monitor your fleet or other assets, please contact the Plantera partner in your region. Find the one that suits you best on the Plantera partner map.
+    If you have already started or are about to start using our management business and are interested in Plantera, please contact us by filling out the form below and get price details.
+    If you want to monitor your farm or others, please contact us. Find the plan that suits you best on the Plantera pricing page.
   </div>
 
   <!-- Request form start here-->
