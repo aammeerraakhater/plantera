@@ -1,6 +1,7 @@
 <?php        
   $style = "createacc.css";
   include 'init.php';
+  require 'topNav.php'
 
   ?>
   <div class="container requestTxt">
