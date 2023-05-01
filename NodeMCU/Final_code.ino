@@ -6,32 +6,63 @@
 #include <Ticker.h>
 #include <DoubleResetDetect.h>
 #include <FirebaseESP8266.h>
+#include <Adafruit_ADS1X15.h>
 #include "DHT.h"
+#include <JsonListener.h>
+#include <time.h>
+#include "OpenWeatherMapForecast.h"
 
-String user_ID ="6ZUQqbE5NFSwNKEFi18wAUooJXY2";
+// initiate the client
+OpenWeatherMapForecast client;
 
-#define DHTPIN D1         // Digital pin connected to the DHT sensor
+// See https://docs.thingpulse.com/how-tos/openweathermap-key/
+String OPEN_WEATHER_MAP_APP_ID = "baa51dba99e56c51316821fcc4a50f27";
+/*
+Go to https://openweathermap.org/find?q= and search for a location. Go through the
+result set and select the entry closest to the actual location you want to display 
+data for. It'll be a URL like https://openweathermap.org/city/2657896. The number
+at the end is what you assign to the constant below.
+ */
+// cairo = 360630
+// Afgooye = 65785
+String OPEN_WEATHER_MAP_LOCATION_ID = "360630";
+String OPEN_WEATHER_MAP_LANGUAGE = "en";
+boolean IS_METRIC = false;
+uint8_t MAX_FORECASTS = 4;
+int delay_weather = 0;
+// uint8_t foundForecasts;
+
+String user_ID ="6ZUQqbE5NFSwNKEFi18wAUooJXY2/farm1";
+
+#define DHTPIN D4         // Digital pin connected to the DHT sensor
 #define DHTTYPE DHT11     // type of DHT
 
-#define Pump_speed2 D2      // Digital pin to controll the Pump speed
-#define Chemical_Pump D7   // Digiatl pin connected to the Chemical pump
-#define Water_Pump D4      // Digital pin connected to the Water pump
-#define Pump_speed D5      // Digital pin to controll the Pump speed
+#define Chemical_Pump D5     // Digiatl pin connected to the Chemical pump
+#define Water_Pump D6        // Digital pin connected to the Water pump
+#define zero_pin D7          
 
-#define Soil_Moisture A0    // Analog pin connected to the Soil moisture sensor 
+#define Rain_Sencor D3        // Digital pin connceted to the Rain sensor
+#define PV_charger D8         // Digital pin connected to relay to charge Battery 
 float Soil_value = 0.0;
 float RT_Soil_value = 0.0;
 String Soil_path = "";
 
-#define Soil_PH D8
 float PH_value = 0.0;
 float RT_PH_value = 0.0;
 String PH_path = "";
 
-#define Rain_Sencor D6      // Digital pin connceted to the Rain sensor
+#define Battery A0
+// Floats for ADC voltage & Input voltage
+float adc_voltage = 0.0;
+float in_voltage = 0.0;
+float R1 = 28400.0;
+float R2 = 7500.0;
+int flag = 100;
+float ref_voltage = 3.3;      // Float for Reference Voltage
+int adc_value = 0;            // Integer for ADC value
+int Battery_level = 0;
 
 
-// #define FIREBASE_HOST "https://plantera-677c5-default-rtdb.firebaseio.com" 
 #define FIREBASE_HOST "https://plant-329fc-default-rtdb.firebaseio.com"
 #define FIREBASE_AUTH "dGglN1c3cUe80ELe6QHC9XNemIFpIREdsVeMlAds"
 
@@ -44,9 +75,13 @@ int plant_ID = 0;
 
 String namee="";
 
+unsigned long time_soil_moisture;
 unsigned long time1;
-unsigned long time2;
+unsigned long time_weather_station;
 
+
+// ADS 1115 pins
+int adc0, adc1, adc2, adc3;
 
 Ticker ticker;    // obj
 #define DRD_TIMEOUT 2.0 // time
@@ -55,21 +90,24 @@ Ticker ticker;    // obj
 DoubleResetDetect drd(DRD_TIMEOUT, DRD_ADRESS);
 DHT dht(DHTPIN, DHTTYPE);
 
+Adafruit_ADS1115 ads;
+
 // Functions
 void tick();
 void Temperature_H();
 void soil_moisture();
 void soil_PH();
+void Battery_level_charging();
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  
   pinMode(Water_Pump, OUTPUT);
   pinMode(Chemical_Pump, OUTPUT);
-  pinMode(Pump_speed, OUTPUT);
-  pinMode(Pump_speed2, OUTPUT);
+  pinMode(zero_pin, OUTPUT);
   pinMode(Rain_Sencor, INPUT);
+  pinMode(PV_charger, OUTPUT);
+  pinMode(Battery, INPUT);
   WiFiManager wifiM;
 
   pinMode(BUILTIN_LED, OUTPUT);
@@ -94,40 +132,113 @@ void setup() {
   digitalWrite(BUILTIN_LED, 1); 
   dht.begin();
 
-  ////////////////////
+  if (!ads.begin()) {
+    Serial.println("Failed to initialize ADS.");
+    while (1);
+  }
+
+ ////////////////////////////////   
+  // OpenWeatherMapForecastData data[MAX_FORECASTS];
+  // client.setMetric(IS_METRIC);
+  // client.setLanguage(OPEN_WEATHER_MAP_LANGUAGE);
+  // uint8_t allowedHours[] = {0,6,12,18};
+  // client.setAllowedHours(allowedHours, 4);
+  // uint8_t foundForecasts = client.updateForecastsById(data, OPEN_WEATHER_MAP_APP_ID, OPEN_WEATHER_MAP_LOCATION_ID, MAX_FORECASTS);
+  // Serial.printf("Found %d forecasts in this call\n", foundForecasts);
+  // Serial.println("------------------------------------");
+ ////////////////////////////////
+
+ ////////////////////
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
   Firebase.reconnectWiFi(true);
   time1=millis();
-  time2=millis();
-  ////////////////////
+  time_soil_moisture=millis();
+  time_weather_station=millis();
+ ////////////////////
 }
 
 void loop() {
-  // Wait a few seconds between measurements.
-  // delay(10000);
-  if (Firebase.getInt(fbdo, "/users/" + user_ID + "/farm1/plant")) {
+  // Read plant ID from firebase   
+  if (Firebase.getInt(fbdo, "/users/" + user_ID + "/plant")) {
     if (fbdo.dataTypeEnum() == fb_esp_rtdb_data_type_integer) {
     plant_ID = fbdo.to<int>();
-    Serial.print("Plant ID: ");
-    Serial.println(fbdo.to<int>());
+    // Serial.print("Plant ID: ");
+    // Serial.println(fbdo.to<int>());
     }
   }else {
     Serial.println(fbdo.errorReason());
   }
+  
+  // Wait a few seconds between measurements.
+  if(millis()-time_soil_moisture >= delay_weather){
+    
+    soil_moisture();
+    // soil_PH();
+    time_soil_moisture=millis();
+  }
 
-  if(millis()-time2>=1000){
-  soil_moisture();
-  // soil_PH();
-  
-  time2=millis();
-  }
-  
-  Temperature_H();
-  if(!digitalRead(Rain_Sencor)){
+  if(millis()-time1>=1000){
+
+    Battery_level_charging();
+    Temperature_H();    
+    
+    if(!digitalRead(Rain_Sencor)){
     Serial.println("Rainy weather");
-  }else{
-    Serial.println("It is not raining"); 
+    Firebase.setInt(fbdo,"/users/"+ user_ID + "/weather/rainy", 1);
+    }else{
+      Serial.println("It is not raining"); 
+      Firebase.setInt(fbdo,"/users/"+ user_ID + "/weather/rainy", 0);
+    }
+      time1=millis();
+  }  
+    
+  if(millis()-time_weather_station >= 10000){
+    
+    OpenWeatherMapForecastData data[MAX_FORECASTS];
+    client.setMetric(IS_METRIC);
+    client.setLanguage(OPEN_WEATHER_MAP_LANGUAGE);
+    uint8_t allowedHours[] = {0,6,12,18};
+    client.setAllowedHours(allowedHours, 4);
+    uint8_t foundForecasts = client.updateForecastsById(data, OPEN_WEATHER_MAP_APP_ID, OPEN_WEATHER_MAP_LOCATION_ID, MAX_FORECASTS);
+    // Serial.printf("Found %d forecasts in this call\n", foundForecasts);
+    // Serial.println("------------------------------------");
+    time_t time;  
+    for (uint8_t i = 0; i < foundForecasts; i++) {
+      Serial.printf("#################\n\nForecast number: %d\n", i);
+      // {"dt":1527066000, uint32_t observationTime;
+      time = data[i].observationTime;
+      Serial.printf("observationTime: %d, full date: %s", data[i].observationTime, ctime(&time));
+      // "main":{
+      // },"weather":[{"id":802, uint16_t weatherId;
+      Serial.printf("weatherId: %d\n", data[i].weatherId);
+      //   "main":"Clouds", String main;
+      Serial.printf("main: %s\n", data[i].main.c_str());
+      //   "description":"scattered clouds", String description;
+      Serial.printf("description: %s\n", data[i].description.c_str());
+      // rain: {3h: 0.055}, float rain;
+      Serial.printf("rain: %f\n", data[i].rain);
+      // },"sys":{"pod":"d"}
+      // dt_txt: "2018-05-23 09:00:00"   String observationTimeText;
+      Serial.printf("observationTimeText: %s\n", data[i].observationTimeText.c_str());
+    }
+    
+    // if((data[0].description.c_str() == "light rain") || (data[0].description.c_str() == "moderate rain") || (data[0].description.c_str() == "heavy intensity rain")){
+    //   delay_weather = 10800000;
+    // }
+    // else{
+    //   delay_weather = 1000;
+    // }
+    if(data[0].rain >= 0.055){
+      delay_weather = 10800000;
+      Serial.println(delay_weather);
+    }
+    else{
+      delay_weather = 1000;
+      Serial.println(delay_weather);
+    }
+    time_weather_station=millis();
   }
+
 }
 
 void tick(){
@@ -149,48 +260,41 @@ void Temperature_H(){
     return;
   }
  
-  Serial.print(F("Humidity: "));
-  Serial.print(h);
-  Serial.print(F("%  Temperature: "));
-  Serial.println(t);
+  Serial.printf("Humidity: %f\n", h);
+  Serial.printf("%  Temperature: %f\n", t);
 
-  Firebase.setInt(fbdo,"/users/"+ user_ID + "/farm1/airhumidity_realtime/RT", h );
-  Firebase.setInt(fbdo,"/users/"+ user_ID + "/farm1/temperature_realtime/RT", t );
+  Firebase.setInt(fbdo,"/users/"+ user_ID + "/airhumidity_realtime/RT", h );
+  Firebase.setInt(fbdo,"/users/"+ user_ID + "/temperature_realtime/RT", t );
 }
 
 void soil_moisture(){
-  RT_Soil_value = analogRead(Soil_Moisture);
-  Serial.print("Moisture Value: ");
-  Serial.println(RT_Soil_value);
-  RT_Soil_value = 100 - ((RT_Soil_value / 1024)*100.0);
-  Firebase.setInt(fbdo,"/users/"+ user_ID + "/farm1/soilmoisture_realtime/RT", RT_Soil_value );
+  RT_Soil_value = ads.readADC_SingleEnded(0);
+  Serial.printf("Moisture Value: %f\n", RT_Soil_value);
+  RT_Soil_value = 100 - ((RT_Soil_value / 20000)*100.0);
+  Firebase.setInt(fbdo,"/users/"+ user_ID + "/soilmoisture_realtime/RT", RT_Soil_value );
 
   if(plant_ID == 0){
     Soil_path = "";
-    Soil_path = "/users/" + user_ID + "/farm1/soilc/value";     
+    Soil_path = "/users/" + user_ID + "/soilc/value";     
   }else if(plant_ID == 1){
     Soil_path = "";
-    Soil_path = "/users/" + user_ID + "/farm1/soilp/value";     
+    Soil_path = "/users/" + user_ID + "/soilp/value";     
   }else if(plant_ID == 2){
     Soil_path = "";
-    Soil_path = "/users/" + user_ID + "/farm1/soilt/value"; 
+    Soil_path = "/users/" + user_ID + "/soilt/value"; 
   }
  
-  Serial.print("Soil path: ");
-  Serial.println(Soil_path);
   if (Firebase.getFloat(fbdo, Soil_path)) {
     if (fbdo.dataTypeEnum() == fb_esp_rtdb_data_type_integer) {
     Soil_value = fbdo.to<int>();
-    Serial.print("Soil humidity value: ");
-    Serial.println(fbdo.to<int>());
     }
   }else {
     Serial.println(fbdo.errorReason());
   } 
-    
-  if(RT_Soil_value < Soil_value){
+  
+  digitalWrite(zero_pin, 0);
+  if((RT_Soil_value < Soil_value) && digitalRead(Rain_Sencor)){
     Serial.println("Pump is work");
-    analogWrite(Pump_speed, 255);
     digitalWrite(Water_Pump, 1);
   }else {
     digitalWrite(Water_Pump, 0);  
@@ -198,20 +302,19 @@ void soil_moisture(){
 }
 
 void soil_PH(){
-  RT_PH_value = analogRead(Soil_PH);
-  Serial.print("PH Value: ");
-  Serial.println(RT_PH_value); 
-  Firebase.setInt(fbdo,"/users/"+ user_ID + "/farm1/ph_realtime/RT", RT_PH_value );
+  RT_PH_value = ads.readADC_SingleEnded(1);
+  Serial.printf("PH Value: %f\n", RT_PH_value);
+  Firebase.setInt(fbdo,"/users/"+ user_ID + "/ph_realtime/RT", RT_PH_value );
 
   if(plant_ID == 0){
     Soil_path = "";
-    Soil_path = "/users/" + user_ID + "/farm1/phc/value";     
+    Soil_path = "/users/" + user_ID + "/phc/value";     
   }else if(plant_ID == 1){
     Soil_path = "";
-    Soil_path = "/users/" + user_ID + "/farm1/php/value";     
+    Soil_path = "/users/" + user_ID + "/php/value";     
   }else if(plant_ID == 2){
     Soil_path = "";
-    Soil_path = "/users/" + user_ID + "/farm1/pht/value"; 
+    Soil_path = "/users/" + user_ID + "/pht/value"; 
   }
 
   if (Firebase.getFloat(fbdo, PH_path)) {
@@ -224,10 +327,49 @@ void soil_PH(){
     Serial.println(fbdo.errorReason());
   } 
 
+  digitalWrite(zero_pin, 0);
   if(RT_PH_value < PH_value){
-    analogWrite(Pump_speed2, 255);
     digitalWrite(Chemical_Pump, 1);
   }else {
     digitalWrite(Chemical_Pump, 0);  
   }
+}
+
+void Battery_level_charging(){
+  
+  adc_value = analogRead(Battery);                 // Read the Analog Input
+  adc_voltage  = (adc_value * ref_voltage) / 1024.0;  // Determine voltage at ADC input
+  in_voltage = adc_voltage / (R2 / (R1 + R2));        // Calculate voltage at divider input
+
+  if(in_voltage >= 12.6){
+     Battery_level = 100;
+  }else if((in_voltage >= 12.5) && (in_voltage < 12.6)){
+     Battery_level = 90;    
+  }else if((in_voltage >= 12.4) && (in_voltage < 12.5)){
+     Battery_level = 80;    
+  }else if((in_voltage >= 12.3) && (in_voltage < 12.4)){
+     Battery_level = 70;    
+  }else if((in_voltage >= 12.2) && (in_voltage < 12.3)){
+     Battery_level = 60;    
+  }else if((in_voltage >= 12.1) && in_voltage < 12.2){
+     Battery_level = 50;    
+  }else if((in_voltage >= 11.9) && in_voltage < 12.1){
+     Battery_level = 40;    
+  }else if((in_voltage >= 11.8) && in_voltage < 11.9){
+     Battery_level = 30;    
+  }else if((in_voltage >= 11.6) && (in_voltage < 11.8)){
+     Battery_level = 20;    
+  }else if((in_voltage >= 11.3) && (in_voltage < 11.6)){
+     Battery_level = 10;    
+  }else if((in_voltage >= 10.5) && (in_voltage < 11.3)){
+     Battery_level = 0;    
+  }
+
+  if(Battery_level <= 50){
+    digitalWrite(PV_charger, 1);
+  }else if(Battery_level > 50){
+    digitalWrite(PV_charger, 0);
+  }
+  Serial.printf("Battery level: %f\n", in_voltage);
+  Firebase.setInt(fbdo,"/users/"+ user_ID + "/battery/value", Battery_level );
 }
