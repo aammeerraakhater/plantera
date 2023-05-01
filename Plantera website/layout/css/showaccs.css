@@ -20,3 +20,20 @@ tr{
     color:var(--brown);
     font-weight: 500;
 }
+.search{
+  
+    top:6px;
+    left:10px;
+  }
+  
+  .form-control{
+      
+      border:none;
+      padding-left:32px;
+  }
+  
+  .form-control:focus{
+      
+      border:none;
+      box-shadow:none;
+  }

@@ -11,6 +11,8 @@
     --chocolate:#45221b;
     --beige:#896a58;
     --latte:#b4947c;
+    --red:#d17979;
+
 }
 body{
     color:var(--truffle);
@@ -32,6 +34,14 @@ body{
     border-radius: 25px;
     background-color: var(--clay);
 }
+.requestDeleteBTN, .requestBTN:hover, .requestBTN:active, .requestBTN:visited, .requestBTN:focus{
+    margin-top:10px;
+    padding:10px;
+    background-color: var(--red);
+    border-color: var(--red);
+    border-radius:  15px;
+}
+
 .requestBTN, .requestBTN:hover, .requestBTN:active, .requestBTN:visited, .requestBTN:focus{
     margin-top:10px;
     padding:10px;

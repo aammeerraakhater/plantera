@@ -19,7 +19,7 @@
                 Plant disease detection<br>
                 <i class="fa-solid fa-check"></i>
                 crop yield predection <br></p>
-            <a href="#" class="btn btn-primary pricingBtn">Get started</a>
+            <a href="request.php" class="btn btn-primary pricingBtn">Get started</a>
         </div>
         </div>
     </div>
@@ -36,7 +36,7 @@
                 <i class="fa-solid fa-check"></i>
                 crop yield predection<br>
             </p>
-            <a href="#" class="btn btn-primary pricingBtn">Get started</a>
+            <a href="request.php" class="btn btn-primary pricingBtn">Get started</a>
         </div>
         </div>
     </div>

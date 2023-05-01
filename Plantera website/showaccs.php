@@ -1,11 +1,32 @@
 <?php
   $style = "showaccs.css";
+  session_start();
+
   include 'init.php';
   require 'topNav.php';
+  include 'config.php';
 ?>
 <div class="container showaccsCon">
+  <?php
+    if(isset($_SESSION['accStatus'])){
+      echo "
+      <script>
+      toastr.info('" . $_SESSION['accStatus'] . "')
+      </script>";
+      unset($_SESSION['accStatus']);
+   } 
+    ?>
+
   <h2>Plantera members</h2>
-<table class="table">
+
+  <div class="row my-3">
+    <div class="col-md-8">  <input class="form-control" id="myInput" type="text" placeholder="Search..">
+  </div>
+    <div class="col-md-4 left">  <a class="btn btn-success" href="createAcc.php">Create account</a>
+  </div>
+  </div>
+
+  <table  class="table table-responsive">
   <thead>
     <tr>
       <th scope="col">#</th>
@@ -13,41 +34,56 @@
       <th scope="col">Email</th>
       <th scope="col">Phone</th>
       <th scope="col">Number of farms</th>
+      <th scope="col">Add farm</th>
       <th scope="col">Edit</th>
       <th scope="col">Delete</th>
 
     </tr>
   </thead>
-  <tbody>
-    <tr>
-      <th scope="row">1</th>
-      <td>Mark Otto</td>
-      <td>@mdo</td>
-      <td>@mdo</td>
-      <td>4</td>
-      <td><button type="button" class="btn btn-info">Edit</button></td>
-      <td><button type="button" class="btn btn-danger">Delete</button></td>
+  <tbody id="myTable">
+    <?php
+    $users = $auth->listUsers($defaultMaxResults = 1000, $defaultBatchSize = 1000);
 
-    </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Jacob Thornton</td>
-      <td>@fat</td>
-      <td>@fat</td>
-      <td>6</td>
-      <td><button type="button" class="btn btn-info">Edit</button></td>
-      <td><button type="button" class="btn btn-danger">Delete</button></td>
+        $i=1;
+          foreach ($users as $user) {
+            ?>
+                  <tr>
+                    <?php $key = $user->uid;?>
+                  <th scope="row"><?=$i?></th>
+                  <td><?= $user->displayName; ?></td>
+                  <td><?= $user->email; ?></td>
+                  <td><?= $user->phoneNumber; ?></td>
+                  <?php 
+                        $ref_table = 'user/'.$key;
+                        $noOfFarms = ($database->getReference($ref_table)->getSnapshot()->numChildren());?>
+                  <td><?= $noOfFarms; ?></td>
+                  
+                  <td>
+                  <form action="addFarm.php" method="post">
+                        <input type="hidden" name="addFarmKey" value="<?=$key?>">
+                        <input class="btn btn-info" type="submit" value="Add">
+                  </form>
+                  </td>
 
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td>Larry the Bird</td>
-      <td>@twitter</td>
-      <td>@twitter</td>
-      <td>2</td>
-      <td><button type="button" class="btn btn-info">Edit</button></td>
-      <td><button type="button" class="btn btn-danger">Delete</button></td>
-    </tr>
+                  <td>
+                  <form action="editAcc.php" method="post">
+                        <input type="hidden" name="editaccKey" value="<?=$key?>">
+                        <input class="btn btn-warning" name="editAccBTN" type="submit" value="Edit">
+                  </form>
+                  </td>
+
+                  <td>
+                  <form action="delete.php" method="post">
+                        <input type="hidden" name="deleteACC" value="<?=$key?>">
+                        <input class="btn btn-danger" type="submit" value="Delete">
+                  </form>
+                  </td>
+
+                  </tr>
+                  <?php
+                  $i++;
+          }
+          ?>
   </tbody>
 </table>
 </div>

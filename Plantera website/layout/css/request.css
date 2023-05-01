@@ -7,6 +7,7 @@
     --marble:#d3d3d3;
     --truffle:#595959;
     --bentley:#262626;
+    --red:#d17979;
 }
 body{
     color:var(--truffle);
