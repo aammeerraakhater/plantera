@@ -55,7 +55,7 @@
                     "value"=> 10,
                     "weather"=>["rainy"=> 0],],
             ];
-            $ref_table = "user/".$uid;
+            $ref_table = "users/".$uid;
             $postRef = $database->getReference($ref_table)->set($farmsData);
             if($postRef){
             $farmRef_table = "farms/".$uid;
@@ -97,7 +97,7 @@
     $id = $_POST['id'];
     $farmDes = $_POST['farmDes'];
     $soilType = $_POST['soiltype'];
-    $ref_table = "user/".$id;
+    $ref_table = "users/".$id;
     $farmRef_table = "farms/".$id;
     $noOfFarms = ($database->getReference($farmRef_table)->getValue())+1;
 

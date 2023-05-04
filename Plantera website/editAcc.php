@@ -112,7 +112,7 @@ if(isset($_SESSION['EditaccStatus'])){
 
         <?php
         $key = $user->uid;
-      $ref_table = 'user/'.$key;
+      $ref_table = 'users/'.$key;
         $farms = $database->getReference($ref_table)->getValue();
         if($farms){
             $names = $database->getReference($ref_table)->getChildKeys();

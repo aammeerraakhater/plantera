@@ -58,7 +58,7 @@
                   <td><?= $user->email; ?></td>
                   <td><?= $user->phoneNumber; ?></td>
                   <?php 
-                        $ref_table = 'user/'.$key;
+                        $ref_table = 'users/'.$key;
                         $noOfFarms = ($database->getReference($ref_table)->getSnapshot()->numChildren());?>
                   <td><?= $noOfFarms; ?></td>
                   

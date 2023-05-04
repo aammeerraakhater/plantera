@@ -6,8 +6,8 @@ use Kreait\Firebase\Factory;
 use Kreait\Firebase\Auth;
 
 $factory = (new Factory)    
-    ->withServiceAccount('trying-plantera-firebase-adminsdk-xw684-cc787ed4cb.json')
-    ->withDatabaseUri('https://trying-plantera-default-rtdb.firebaseio.com/');
+    ->withServiceAccount('plant-329fc-firebase-adminsdk-u1xtz-14de828fc9.json')
+    ->withDatabaseUri('https://plant-329fc-default-rtdb.firebaseio.com/');
 $database = $factory->createDatabase();
 $auth = $factory->createAuth();
 // session_start();

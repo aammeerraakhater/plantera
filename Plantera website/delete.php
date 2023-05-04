@@ -6,7 +6,7 @@ if(isset($_POST['deleteACC'])){
     $uid = $_POST['deleteACC'];
     try {
         $auth->deleteUser($uid);
-        $ref_table = "user/".$uid;
+        $ref_table = "users/".$uid;
         $deleteData = $database->getReference($ref_table)->remove();
         if($deleteData){
             $_SESSION['accStatus']="Data is deleted successfully";
@@ -42,7 +42,7 @@ if(isset($_POST['deleteRequestID'])){
 if(isset($_POST['deleteFarm'])){
     $id= $_POST['deleteFarmUID'];
     $farmName=$_POST['deleteFarmName'];
-    $ref_table = "user/".$id."/".$farmName;
+    $ref_table = "users/".$id."/".$farmName;
     $deleteData = $database->getReference($ref_table)->remove();
 
     if($deleteData){
