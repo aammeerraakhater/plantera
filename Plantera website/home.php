@@ -4,6 +4,15 @@
   include 'navbar.php';
 
   ?>
+    <?php
+    if(isset($_SESSION['status'])){
+      echo "
+      <script>
+      toastr.info('" . $_SESSION['status'] . "')
+      </script>";
+      unset($_SESSION['status']);}
+    ?>
+
   <div class="headerImg">
   </div> 
   <div class="container">

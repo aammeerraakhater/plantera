@@ -10,7 +10,7 @@
                     <a class="nav-link dropdown-toggle" id="userDropdown" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
                     <a class="dropdown-item" href="dashboard.php">Dashboard</a>
-                    <a class="dropdown-item" href="createAcc.php">Create account</a>
+                    <a class="dropdown-item" href="addAcc.php">Create account</a>
                     <a class="dropdown-item" href="showaccs.php">Add farm</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="logout.php">Logout</a>

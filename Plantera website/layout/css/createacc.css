@@ -34,11 +34,9 @@ body{
     border-radius: 25px;
     background-color: var(--clay);
 }
-.requestDeleteBTN, .requestBTN:hover, .requestBTN:active, .requestBTN:visited, .requestBTN:focus{
+.deletetBTN, .deletetBTN:hover, .deletetBTN:active, .deletetBTN:visited, .deletetBTN:focus{
     margin-top:10px;
     padding:10px;
-    background-color: var(--red);
-    border-color: var(--red);
     border-radius:  15px;
 }
 
@@ -48,7 +46,6 @@ body{
     background-color: var(--brown);
     border-color: var(--brown);
     border-radius:  15px;
-    align-self:flex-start;
     width: 150px;
 }
 .icon{
@@ -78,4 +75,16 @@ i.fa-tree{
     background-size: cover;
     border-radius: 50%;
     margin: 0 auto 25px auto;
+}
+.error
+{
+  color: red;
+  size: 80%
+}
+.divError{
+    border-color: red;
+}
+.hidden
+{
+  display:none;
 }

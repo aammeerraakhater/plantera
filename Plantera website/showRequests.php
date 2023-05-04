@@ -2,11 +2,10 @@
     $page_name = "Get All Requests";
     $style = "showRequests.css";
     $semanticstyle = "semantic.min.css";
-    session_start();
     require_once "init.php";
+    include 'authentication.php';
+    if(isset($_SESSION['verified_user_id'])){
     require 'topNav.php';
-    include "config.php";
-
     $ref_table = 'request';
     $fetchdata = $database->getReference($ref_table)->getValue();
     if(isset($_SESSION['requestStatus'])){
@@ -73,11 +72,8 @@ if($fetchdata > 0){?>
 
       </div>
 </div>
-    <?php 
-// }else{
-//         header("location:signin.php");
-//     }
-//}else{
-  //  header("Location:LogIn.php");
-//}
-//ob_end_flush();
+
+<?php
+}else{
+   header("Location:LogIn.php");
+}

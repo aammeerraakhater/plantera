@@ -1,10 +1,9 @@
 <?php
   $style = "createacc.css";
-  session_start();
-
   include 'init.php';
+  include "authentication.php";
+  if(isset($_SESSION['verified_user_id'])){
   require 'topNav.php';
-  include 'config.php';
   if(isset($_POST['addFarmKey'])){
     $id = $_POST['addFarmKey'];
     }?>
@@ -29,3 +28,7 @@
     </form>
     </div>
   <!-- Request form end here-->
+
+<?php  }else{
+    header("location:login.php");
+  }

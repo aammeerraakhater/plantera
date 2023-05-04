@@ -19,7 +19,10 @@
                 Plant disease detection<br>
                 <i class="fa-solid fa-check"></i>
                 crop yield predection <br></p>
-            <a href="request.php" class="btn btn-primary pricingBtn">Get started</a>
+                <form action="request.php" method="post">
+                    <input type="hidden" name="requestfarms" value="one">
+                    <input class="btn  btn-primary pricingBtn" name="requestfarmsBTN" type="submit" value="Request">
+            </form>
         </div>
         </div>
     </div>
@@ -36,7 +39,10 @@
                 <i class="fa-solid fa-check"></i>
                 crop yield predection<br>
             </p>
-            <a href="request.php" class="btn btn-primary pricingBtn">Get started</a>
+            <form action="request.php" method="post">
+                        <input type="hidden" name="requestfarms" value="more">
+                        <input class="btn  btn-primary pricingBtn" name="requestfarmsBTN" type="submit" value="Request">
+            </form>
         </div>
         </div>
     </div>

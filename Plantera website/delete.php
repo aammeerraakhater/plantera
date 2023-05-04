@@ -39,3 +39,20 @@ if(isset($_POST['deleteRequestID'])){
 
     }
 } 
+if(isset($_POST['deleteFarm'])){
+    $id= $_POST['deleteFarmUID'];
+    $farmName=$_POST['deleteFarmName'];
+    $ref_table = "user/".$id."/".$farmName;
+    $deleteData = $database->getReference($ref_table)->remove();
+
+    if($deleteData){
+        $_SESSION['accStatus']="Farm is removed successfully";
+        header("location:showaccs.php");
+
+    }else{
+        $_SESSION['accStatus']="Farm is not removed";
+        header("location:showaccs.php");
+
+    }
+
+}

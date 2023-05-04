@@ -6,23 +6,19 @@
   include 'navbar.php';
   include 'config.php';
 
-  if($_SERVER["REQUEST_METHOD"]=="POST" ){
+  if($_SERVER["REQUEST_METHOD"]=="POST" && isset($_POST['recieveRequest'])){
     //if account already exists don't add
     // add to authentication
       $email =  $_POST["email"];
       $fullname = $_POST["fullname"];
-      $companyName = $_POST["companyName"];
       $phone = $_POST["phone"];
-      $city = $_POST['city'];
       $noOfFarms = $_POST['noOfFarms'];
       $time = $_POST['time'];
       $requestData = [
           "fullname" => $fullname,
-          "companyName" => $companyName,
           "email" => $email,
           "phone" =>$phone,
           'noOfFarms' => $noOfFarms,
-          'city'=>$city,
           'time'=>$time,
       ];
       $ref_table = "request";
@@ -33,7 +29,12 @@
       }
       else{
         $_SESSION['status'] = "Your request is not sent successfully ";
-      }}
+      }
+  }
+  $noOfFarms = "unset"  ;
+  if (isset($_POST['requestfarmsBTN'])) {
+    $noOfFarms = $_POST['requestfarms'];
+  }
   ?>
   <div class="container requestTxt">
   <?php
@@ -59,9 +60,6 @@
         <div class="col-md-12">
           <input required type="text" name="fullname" class="form-control formInpt" placeholder="First and last name">
         </div>
-        <div class="col-md-12">
-          <input required type="text" name="companyName" class="form-control formInpt" placeholder="Enter our company's name">
-        </div>
       </div>
       <div class="form-row">
         <div class="col-md-12">
@@ -72,15 +70,12 @@
         </div>
       </div>
       <div class="form-row">
-        <div class="col-md-12">
-          <input required type="text" class="form-control formInpt" name="city" placeholder="City">
-        </div>
         <div class=" col-md-12 ">
-          <input required type="text" class="form-control formInpt" name="noOfFarms" placeholder="How many farms do you want to install our system in">
+          <input  hidden required type="text" class="form-control formInpt" value="<?=$noOfFarms?>"name="noOfFarms" placeholder="How many farms do you want to install our system in">
         </div>
         <input type="hidden" name="time" value="<?=date("Y-m-d H:i:s");?>">
       </div>
-      <input class="btn btn-primary requestBTN" type="submit" value="Submit">
+      <input class="btn btn-primary requestBTN" name="recieveRequest" type="submit" value="Submit">
     </form>
     </div>
   <!-- Request form end here-->

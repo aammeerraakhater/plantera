@@ -1,11 +1,11 @@
 <?php
   $style = "showaccs.css";
-  session_start();
-
   include 'init.php';
-  require 'topNav.php';
-  include 'config.php';
-?>
+  include 'authentication.php';
+  if(isset($_SESSION['verified_user_id'])){
+    require 'topNav.php';
+
+    ?>
 <div class="container showaccsCon">
   <?php
     if(isset($_SESSION['accStatus'])){
@@ -15,6 +15,7 @@
       </script>";
       unset($_SESSION['accStatus']);
    } 
+
     ?>
 
   <h2>Plantera members</h2>
@@ -22,7 +23,7 @@
   <div class="row my-3">
     <div class="col-md-8">  <input class="form-control" id="myInput" type="text" placeholder="Search..">
   </div>
-    <div class="col-md-4 left">  <a class="btn btn-success" href="createAcc.php">Create account</a>
+    <div class="col-md-4 left">  <a class="btn btn-success" href="addAcc.php">Create account</a>
   </div>
   </div>
 
@@ -46,6 +47,9 @@
 
         $i=1;
           foreach ($users as $user) {
+            if($_SESSION['verified_user_id'] == $user->uid){
+              continue;
+            }
             ?>
                   <tr>
                     <?php $key = $user->uid;?>
@@ -87,3 +91,9 @@
   </tbody>
 </table>
 </div>
+<?php
+  }else{
+      header("location:login.php");
+  }
+
+?>

@@ -6,7 +6,7 @@
   if($_SERVER["REQUEST_METHOD"]=="POST" && isset($_POST['createUserAccBtn'])){
     $email =  $_POST["email"];
     $fullname = $_POST["fullname"];
-    $phone = '+20'.$_POST["phone"];
+    $phone = $_POST["phone"];
     try {
         $userEmail = $auth->getUserByEmail($email);
         $userPhone = $auth->getUserByPhoneNumber($phone);
@@ -57,12 +57,16 @@
             ];
             $ref_table = "user/".$uid;
             $postRef = $database->getReference($ref_table)->set($farmsData);
+            if($postRef){
+            $farmRef_table = "farms/".$uid;
+            $farmpostRef = $database->getReference($farmRef_table)->set($noOfFarms);
+            }
         }
         else{
             $_SESSION['accStatus'] = "Data is not inserted";
             header("location:createAcc.php");
         }
-        if($postRef && $createdUser){
+        if($postRef && $createdUser && $farmpostRef){
             $_SESSION['accStatus'] = "Data inserted successfully";
             header("location:showaccs.php");
         }
@@ -94,7 +98,8 @@
     $farmDes = $_POST['farmDes'];
     $soilType = $_POST['soiltype'];
     $ref_table = "user/".$id;
-    $noOfFarms = ($database->getReference($ref_table)->getSnapshot()->numChildren())+1;
+    $farmRef_table = "farms/".$id;
+    $noOfFarms = ($database->getReference($farmRef_table)->getValue())+1;
 
     $farmData = [
       'farm'.$noOfFarms=>[
@@ -124,6 +129,7 @@
     ];
   $updatequery = $database->getReference($ref_table)->update($farmData);
   if($updatequery){
+    $farmpostRef = $database->getReference($farmRef_table)->set($noOfFarms);
     $_SESSION['accStatus'] = "Farm is added successfully";
     header("location:showaccs.php");
     }else{
