@@ -17,11 +17,20 @@
         header("location:showaccs.php"); 
     }
     else{
+
+        $n=10;
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $randomString = '';
+ 
+        for ($i = 0; $i < $n; $i++) {
+            $index = rand(0, strlen($characters) - 1);
+            $randomString .= $characters[$index];
+    }
         $userProperties = [
               'email' => $email,
               'emailVerified' => false,
               'phoneNumber' => $phone,
-              'password' => 'secretPassword',
+              'password' => $randomString,
               'displayName' => $fullname,
           ];
           $createdUser = $auth->createUser($userProperties);
